@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Lucas Hasselfeld</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root { --black: #080808; --cream: #f0ece4; --orange: #E8500A; }
+
+html { scroll-behavior: smooth; }
+
+body { background: var(--black); color: var(--cream); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.35;
+}
+
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 28px 48px; }
+.nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: .15em; color: var(--cream); text-decoration: none; }
+.nav-links { display: flex; gap: 40px; }
+.nav-links a { font-size: .7rem; letter-spacing: .2em; color: var(--cream); text-decoration: none; opacity: .7; transition: opacity .2s; }
+.nav-links a:hover { opacity: 1; }
+
+.hero { position: relative; height: 100vh; min-height: 600px; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 48px 80px; overflow: hidden; }
+.hero-bg { position: absolute; inset: 0; background: url('hero-bg.png') 75% center / cover no-repeat; }
+.hero-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to right, rgba(8,8,8,.85) 40%, rgba(8,8,8,.2) 100%), linear-gradient(to top, rgba(8,8,8,.7) 0%, transparent 60%); }
+.hero-content { position: relative; z-index: 2; }
+.hero-name { font-family: 'Bebas Neue', sans-serif; font-size: clamp(40px, 7vw, 90px); color: var(--orange); letter-spacing: .03em; line-height: .92; }
+.hero-sub { display: flex; align-items: center; gap: 20px; margin-top: 20px; font-size: .72rem; letter-spacing: .22em; opacity: .75; }
+.hero-sub::before { content: ''; display: block; width: 48px; height: 1px; background: var(--orange); flex-shrink: 0; }
+.hero-scroll { position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%); font-size: .6rem; letter-spacing: .3em; opacity: .4; z-index: 2; }
+
+.projects { padding: 100px 48px; }
+.section-label { font-size: .65rem; letter-spacing: .3em; opacity: .4; margin-bottom: 60px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.card { position: relative; aspect-ratio: 16 / 10; overflow: hidden; cursor: pointer; background: #111; }
+.card img { width: 100%; height: 100%; object-fit: cover; display: block; filter: brightness(.75) saturate(.8); transition: transform .6s ease, filter .6s ease; }
+.card:hover img { transform: scale(1.04); filter: brightness(.5) saturate(.6); }
+.card-info { position: absolute; inset: 0; padding: 24px; display: flex; flex-direction: column; justify-content: flex-end; background: linear-gradient(to top, rgba(8,8,8,.9) 0%, transparent 60%); }
+.card-client { font-size: .6rem; letter-spacing: .25em; color: var(--orange); margin-bottom: 6px; }
+.card-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: .06em; line-height: 1.1; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(8,8,8,.95); z-index: 200; display: flex; align-items: flex-start; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .3s; overflow-y: auto; padding: 80px 24px 60px; }
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+.modal { width: 90%; max-width: 960px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+.modal-media { grid-column: 1 / -1; }
+.modal-video-wrap { position: relative; padding-bottom: 56.25%; height: 0; background: #111; }
+.modal-video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+.modal-image { width: 100%; display: block; }
+.modal-placeholder { height: 300px; background: #111; display: flex; align-items: center; justify-content: center; font-size: .7rem; letter-spacing: .2em; opacity: .3; }
+.modal-client { font-size: .6rem; letter-spacing: .25em; color: var(--orange); margin-bottom: 8px; }
+.modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; letter-spacing: .05em; margin-bottom: 20px; line-height: 1; }
+.modal-label { font-size: .6rem; letter-spacing: .2em; opacity: .4; margin-bottom: 6px; margin-top: 20px; }
+.modal-text { font-size: .82rem; line-height: 1.7; opacity: .8; }
+.modal-award { color: var(--orange); opacity: 1; }
+.modal-close { position: fixed; top: 32px; right: 40px; font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: .1em; background: none; border: none; color: var(--cream); cursor: pointer; opacity: .5; transition: opacity .2s; z-index: 201; }
+.modal-close:hover { opacity: 1; }
+
+.contact { padding: 120px 48px; border-top: 1px solid rgba(240,236,228,.08); display: flex; align-items: center; justify-content: center; gap: 80px; }
+.contact-photo { flex-shrink: 0; width: 320px; height: 400px; background: #1a1a1a; overflow: hidden; }
+.contact-photo img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(20%); }
+.contact-photo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: .6rem; letter-spacing: .2em; opacity: .25; }
+.contact-right { display: flex; flex-direction: column; align-items: flex-start; }
+.contact-tag { font-size: .65rem; letter-spacing: .3em; opacity: .4; margin-bottom: 32px; }
+.contact-heading { font-family: 'DM Serif Display', serif; font-size: clamp(36px, 4vw, 64px); font-style: italic; line-height: 1.1; margin-bottom: 48px; max-width: 500px; }
+.contact-links { display: flex; gap: 48px; flex-wrap: wrap; }
+.contact-link { font-size: .75rem; letter-spacing: .2em; color: var(--cream); text-decoration: none; border-bottom: 1px solid rgba(240,236,228,.2); padding-bottom: 4px; transition: color .2s, border-color .2s; }
+.contact-link:hover { color: var(--orange); border-color: var(--orange); }
+
+footer { padding: 28px 48px; border-top: 1px solid rgba(240,236,228,.06); display: flex; justify-content: space-between; align-items: center; }
+footer span { font-size: .62rem; letter-spacing: .15em; opacity: .3; }
+
+.fade-up { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 1024px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  nav { padding: 20px 24px; }
+  .nav-links { gap: 24px; }
+  .hero { padding: 0 24px 60px; }
+  .projects { padding: 60px 24px; }
+  .grid { grid-template-columns: 1fr; }
+  .contact { flex-direction: column; padding: 80px 24px; gap: 40px; align-items: flex-start; }
+  .contact-photo { width: 100%; height: 280px; }
+  .contact-heading { font-size: clamp(28px, 8vw, 48px); }
+  .contact-links { flex-direction: column; gap: 24px; }
+  .modal { grid-template-columns: 1fr; gap: 24px; }
+  .modal-title { font-size: 1.8rem; }
+  .modal-close { top: 16px; right: 20px; }
+  footer { padding: 20px 24px; flex-direction: column; gap: 8px; text-align: center; }
+}
+@media (max-width: 480px) {
+  .nav-links a { font-size: .6rem; }
+  .hero-sub { font-size: .6rem; letter-spacing: .12em; }
+  .section-label { font-size: .6rem; }
+  .modal-overlay { padding: 60px 16px 40px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">LH</a>
+  <div class="nav-links">
+    <a href="#work">WORK</a>
+    <a href="#contact">CONTACT</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content fade-up">
+    <div class="hero-name">LUCAS HASSELFELD</div>
+    <div class="hero-sub">SENIOR PRODUCER &nbsp;·&nbsp; CREATIVE &amp; TECHNICAL STORYTELLING</div>
+  </div>
+  <div class="hero-scroll">SCROLL</div>
+</section>
+
+<section class="projects" id="work">
+  <div class="section-label">THE WORK</div>
+  <div class="grid" id="grid"></div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="contact-photo">
+    <img src="photo.jpg" alt="Lucas Hasselfeld" onerror="this.style.display='none';this.parentNode.innerHTML='<div class=contact-photo-placeholder>PHOTO</div>'"/>
+  </div>
+  <div class="contact-right">
+    <div class="contact-tag">GET IN TOUCH</div>
+    <h2 class="contact-heading fade-up">Ready when you are.</h2>
+    <div class="contact-links">
+      <a class="contact-link" href="mailto:lucasahasselfeld@gmail.com">LUCASAHASSELFELD@GMAIL.COM</a>
+      <a class="contact-link" href="tel:9252094149">925.209.4149</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>2025 LUCAS HASSELFELD</span>
+  <span>SENIOR PRODUCER</span>
+</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <button class="modal-close" id="modalClose">X CLOSE</button>
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<script>
+var projects = [
+  {
+    client: 'Google Research',
+    title: 'Mapping the Brain',
+    overview: 'Mapping the entire human brain could transform how we understand disease, memory, and cognition. This film explores how Google Research is using AI to accelerate discoveries that would otherwise take centuries using traditional methods.',
+    role: 'Senior Producer — led end-to-end production, including client partnership, creative development, budgeting, and delivery.',
+    scope: 'Oversaw cross-functional collaboration between researchers, creatives, and production teams to translate highly technical science into an accessible narrative for a broad audience.',
+    result: '400k+ organic views within one year, helping establish Google Research long-form storytelling approach around complex scientific breakthroughs.',
+    award: 'Silver ADDY, Film/Video/Sound Branded Content',
+    mediaType: 'video',
+    embed: 'https://www.youtube.com/embed/VSG3_JvnCkU?autoplay=1'
+  },
+  {
+    client: 'Google Research',
+    title: 'Mapping the Web of Life',
+    overview: 'To protect life on Earth, we first need to understand where it exists. This film highlights how Google Research is using AI-powered Species Distribution Models to map plants, animals, fungi, and other species worldwide, supporting conservation efforts where they matter most.',
+    role: 'Senior Producer — led international production, client management, and cross-regional coordination.',
+    scope: 'Managed an international production spanning Australia, England, and the United States, aligning global crews and researchers while maintaining a cohesive creative vision.',
+    result: 'Enabled policymakers, scientists, and conservationists to better visualize and understand biodiversity data through clear, compelling storytelling.',
+    award: null,
+    mediaType: 'video',
+    embed: 'https://www.youtube.com/embed/9xR7858hEYM?autoplay=1'
+  },
+  {
+    client: 'Google Quantum AI',
+    title: 'Meet Willow',
+    overview: 'This launch film announced Willow, Google latest state-of-the-art quantum computing chip, marking a significant milestone toward building a scalable, error-resistant quantum computer.',
+    role: 'Senior Producer — owned production strategy, creative execution, and stakeholder alignment across highly technical teams.',
+    scope: 'Worked closely with quantum researchers to translate an abstract, complex breakthrough into a clear, engaging story accessible to both technical and general audiences.',
+    result: '1.5M+ organic views within weeks of launch, significantly expanding awareness of Google Quantum AI progress and vision.',
+    award: null,
+    mediaType: 'video',
+    embed: 'https://www.youtube.com/embed/W7ppd_RY-UE?autoplay=1'
+  },
+  {
+    client: 'Google DeepMind x YouTube',
+    title: 'Music AI Sandbox',
+    overview: 'Music AI Sandbox is a suite of tools from Google DeepMind and YouTube that helps musicians make music in unprecedented ways, partnering with artists to investigate the exciting role AI can have in the music creation process.',
+    role: 'Senior Producer — led production and line produced shoot with celebrity talent.',
+    scope: 'Partnered with Wyclef Jean, Justin Tranter, and Marc Rebillet to create the first demos using the Music AI Sandbox, each released on their YouTube channels.',
+    result: 'Successfully launched Music AI Sandbox to the public through compelling artist-driven storytelling, with demos available across artist YouTube channels.',
+    award: null,
+    mediaType: 'video',
+    embed: 'https://www.youtube.com/embed/-dPqc7l2zu8?autoplay=1'
+  },
+  {
+    client: 'SoFi',
+    title: 'Get Your Money Right',
+    overview: 'A 360 degree brand campaign aimed at helping millennials regain financial confidence, positioning SoFi as a modern, empowering solution for managing money across life stages.',
+    role: 'Senior Producer — led integrated campaign production.',
+    scope: 'Oversaw cross-channel execution across brand, product, OOH, and stills, aligning creative teams and stakeholders to deliver a cohesive, culturally relevant message.',
+    result: 'Strengthened SoFi brand relevance with a younger audience through a clear, empathetic financial narrative.',
+    award: null,
+    mediaType: 'video',
+    embed: 'https://drive.google.com/file/d/1L2WDUFYxcyuIbkyDNspBNPOJvcVcDcvG/preview'
+  },
+  {
+    client: 'Dignity Health',
+    title: '100 Acts of Humankindness',
+    overview: 'An experiential pop-up and social campaign designed to encourage acts of kindness in downtown Los Angeles, created for Dignity Health California Hospital Medical Center.',
+    role: 'Senior Producer — led experiential and social campaign production.',
+    scope: 'Oversaw the design and execution of a public installation that generated organic participation and shareable moments.',
+    result: 'Winner of the 2019 MarCom Platinum Award for Best Social Ad Campaign.',
+    award: '2019 MarCom Platinum Award',
+    mediaType: 'video',
+    embed: 'https://player.vimeo.com/video/325286955?autoplay=1'
+  },
+  {
+    client: 'Pella',
+    title: 'Stormy Heights',
+    overview: 'To showcase the durability of Pella fiberglass windows, we created Stormy Heights, a fictional place where every extreme weather condition happens at once and every home has Pella windows.',
+    role: 'Integrated Producer — led integrated campaign production across broadcast and brand teams.',
+    scope: 'Led the creative development and production of the broadcast spot.',
+    result: 'Flagship brand film for Pella Windows, showcasing product durability through cinematic storytelling.',
+    award: null,
+    mediaType: 'video',
+    embed: 'https://www.youtube.com/embed/YST7N8b6C5w?autoplay=1'
+  },
+  {
+    client: 'Google Research',
+    title: 'Before Rivers Rise',
+    overview: 'Floods impact millions of people each year, often with little warning. This film explores how Google Research is using AI to improve global flood forecasting, helping communities prepare earlier and more accurately.',
+    role: 'Senior Producer — led international field production.',
+    scope: 'International production spanning Brazil and the United States.',
+    result: 'Featured documentary short highlighting Google Research AI-powered flood forecasting tools.',
+    award: null,
+    mediaType: 'video',
+    embed: 'https://www.youtube.com/embed/iZmltPAFhY0?autoplay=1'
+  },
+  {
+    client: 'Kraken Rum',
+    title: 'Step Into the Dark',
+    overview: 'To launch Kraken Rum brand refresh, we created a 360 degree campaign that challenges people to step outside their comfort zones, using bold storytelling to reintroduce the brand darker, more adventurous spirit.',
+    role: 'Producer — led 360 degree campaign production.',
+    scope: 'Brand Launch, Experiential Installation, Sweepstakes, Influencer Content, Social Content.',
+    result: 'Global brand campaign launch reintroducing Kraken Rum darker, more adventurous identity.',
+    award: null,
+    mediaType: 'video',
+    embed: 'https://www.youtube.com/embed/kdu1-nI4HUE?autoplay=1'
+  },
+  {
+    client: 'Google Quantum AI',
+    title: 'Demonstrating Quantum Error Correction',
+    overview: 'This film documents a major milestone for Google Quantum AI: the first demonstration of a logical qubit prototype, showing that increasing the number of qubits can reduce errors and move quantum computing closer to real-world usefulness.',
+    role: 'Senior Producer',
+    scope: 'End-to-end production covering a highly technical scientific milestone.',
+    result: 'Clearly communicated a complex quantum computing breakthrough to both technical and general audiences.',
+    award: null,
+    mediaType: 'video',
+    embed: 'https://www.youtube.com/embed/_ugJLuJ1_gM?autoplay=1'
+  },
+  {
+    client: 'Google Research x Howard University',
+    title: 'Project Elevate Black Voices',
+    overview: 'A collaborative film created with and for Howard University, highlighting Project Elevate Black Voices and its work to improve voice assistant technologies for the Black community.',
+    role: 'Senior Producer',
+    scope: 'Collaborative production bridging Google Research and Howard University teams.',
+    result: 'Amplified an important initiative improving voice assistant equity and accessibility.',
+    award: null,
+    mediaType: 'video',
+    embed: 'https://www.youtube.com/embed/tzyQnYct17A?autoplay=1'
+  },
+  {
+    client: 'Google for Health',
+    title: 'You Contain Multitudes',
+    overview: 'A vision film exploring the future of health and AI, showcasing how emerging technologies could transform medical research, diagnosis, and patient care.',
+    role: 'Senior Producer',
+    scope: 'Concept development and full production of a forward-looking health and AI vision film.',
+    result: 'Positioned Google for Health long-term vision through compelling, accessible storytelling.',
+    award: null,
+    mediaType: 'video',
+    embed: 'https://www.youtube.com/embed/vekmDxgPey8?autoplay=1'
+  },
+  {
+    client: 'Pella',
+    title: 'Pella Surf',
+    overview: 'To test the extreme durability of Pella fiberglass windows, we partnered with professional surfer Jamie O Brien and built a custom window board, putting the product through conditions unlike any traditional demo.',
+    role: 'Integrated Producer',
+    scope: 'Hero Film, Behind-the-Scenes Content, Influencer Content.',
+    result: 'A bold product demo campaign that went far beyond conventional advertising.',
+    award: null,
+    mediaType: 'video',
+    embed: 'https://www.youtube.com/embed/eWLJBLqSZ7o?autoplay=1'
+  },
+  {
+    client: 'Google Research',
+    title: 'Google Research YouTube Channel',
+    overview: 'Google Research YouTube channel serves as a primary platform for communicating complex scientific breakthroughs to a global audience. This initiative focused on improving clarity, consistency, and long-term audience growth across highly technical content.',
+    role: 'Senior Producer — led channel strategy, reorganization, and ongoing content planning.',
+    scope: 'Reorganized the channel structure, redesigned content taxonomy, and established scalable workflows to improve discoverability, retention, and editorial consistency across research topics.',
+    result: 'Scaled channel engagement from 106K total views in early 2023 to 4.7M+ views in 2024, driving 481K new subscribers and improving female subscribers from 8% to 45%.',
+    award: 'Bronze ADDY, Film/Video/Sound Branded Content (Mapping the Ionosphere)',
+    mediaType: 'video',
+    embed: 'https://www.youtube.com/embed/pwDX67hlBXg?autoplay=1'
+  },
+  {
+    client: 'OnDeck',
+    title: 'Visual Identity and Website Design',
+    overview: 'OnDeck faced two challenges: people did not know what they do, and 45 different programs needed to feel cohesive under one brand while still feeling distinct. The solution was a new visual identity built around celebrating industry heroes with celebrity status, paired with an iconographic system to organize their program offerings.',
+    role: 'Senior Project Manager and Producer, Brand',
+    scope: 'Developed a new visual identity establishing OnDeck as a top-tier online community. Created an iconographic system to organize 45+ programs and clarify what OnDeck does and which industries they support.',
+    result: 'Delivered a cohesive brand identity that elevated OnDeck positioning and made their program offering clearly navigable for site visitors and potential cohort fellows.',
+    award: null,
+    mediaType: 'image',
+    embed: 'ondeck.jpg'
+  }
+];
+
+var grid = document.getElementById('grid');
+
+for (var i = 0; i < projects.length; i++) {
+  (function(p, idx) {
+    var card = document.createElement('div');
+    card.className = 'card';
+
+    var img = document.createElement('img');
+    img.src = 'thumb-' + (idx + 1) + '.jpg';
+    img.alt = p.title;
+    img.onerror = function() { this.style.display = 'none'; };
+
+    var info = document.createElement('div');
+    info.className = 'card-info';
+    info.innerHTML = '<div class="card-client">' + p.client.toUpperCase() + '</div><div class="card-title">' + p.title + '</div>';
+
+    card.appendChild(img);
+    card.appendChild(info);
+    card.addEventListener('click', function() { openModal(p); });
+    grid.appendChild(card);
+  })(projects[i], i);
+}
+
+function buildMedia(p) {
+  if (p.mediaType === 'image') {
+    return '<div class="modal-media"><img class="modal-image" src="' + p.embed + '" alt="' + p.title + '"/></div>';
+  }
+  if (p.mediaType === 'video' && p.embed) {
+    return '<div class="modal-media"><div class="modal-video-wrap"><iframe src="' + p.embed + '" allow="autoplay; fullscreen" allowfullscreen></iframe></div></div>';
+  }
+  return '<div class="modal-media"><div class="modal-placeholder">IMAGERY COMING SOON</div></div>';
+}
+
+function openModal(p) {
+  var overlay = document.getElementById('modalOverlay');
+  var content = document.getElementById('modalContent');
+  var awardHTML = p.award ? '<div class="modal-label">AWARD</div><div class="modal-text modal-award">' + p.award + '</div>' : '';
+  content.innerHTML =
+    buildMedia(p) +
+    '<div>' +
+      '<div class="modal-client">' + p.client.toUpperCase() + '</div>' +
+      '<div class="modal-title">' + p.title + '</div>' +
+      '<div class="modal-label">OVERVIEW</div>' +
+      '<div class="modal-text">' + p.overview + '</div>' +
+    '</div>' +
+    '<div>' +
+      '<div class="modal-label">ROLE</div>' +
+      '<div class="modal-text">' + p.role + '</div>' +
+      '<div class="modal-label">SCOPE</div>' +
+      '<div class="modal-text">' + p.scope + '</div>' +
+      '<div class="modal-label">RESULT</div>' +
+      '<div class="modal-text">' + p.result + '</div>' +
+      awardHTML +
+    '</div>';
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === e.currentTarget) { closeModal(); }
+});
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.getElementById('modalContent').innerHTML = '';
+  document.body.style.overflow = '';
+}
+
+var observer = new IntersectionObserver(function(entries) {
+  for (var i = 0; i < entries.length; i++) {
+    if (entries[i].isIntersecting) { entries[i].target.classList.add('visible'); }
+  }
+}, { threshold: 0.15 });
+
+var fadeEls = document.querySelectorAll('.fade-up');
+for (var k = 0; k < fadeEls.length; k++) { observer.observe(fadeEls[k]); }
+
+setTimeout(function() {
+  var hero = document.querySelector('.hero-content');
+  if (hero) { hero.classList.add('visible'); }
+}, 100);
+</script>
+</body>
+</html>
